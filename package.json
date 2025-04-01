@@ -1,0 +1,21 @@
+{
+  "name": "00_devtinder",
+  "version": "1.0.0",
+  "description": "this is an devtinder application ",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node/src/app.js"
+  },
+  "keywords": [
+    "javascript",
+    "react",
+    "nodejs"
+  ],
+  "author": "bhushan bankar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  }
+}
