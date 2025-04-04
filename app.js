@@ -1,23 +1,30 @@
 const express = require("express");
-
+const connectDB = require("./Utils/Database");
+const User = require("./models/User");
 const app = express();
 
-// app.get("/", (req, res) => {
-//   res.setHeader("Content-Type", "text/plain"); // Must set manually
-//   res.end("hello from server");
-// });
-app.use("/", (req, res) => {
-  res.send("hello from server");
+app.post("/signup", (req, res) => {
+  const user = new User({
+    firstName: "bhushan",
+    lastName: "bankar",
+    email: "bhushan@gamil.com",
+    password: "123",
+    age: 12,
+  });
+  try {
+    user.save();
+    res.send("user added successfully in the database");
+  } catch (err) {
+    console.log("Invalid request");
+  }
 });
 
-app.get("/test", (req, res) => {
-  res.send("this is running on port 3000/test");
-});
+connectDB()
+  .then(() => {
+    console.log("Database Connection established successfully");
 
-app.get("/all", (req, res) => {
-  res.send("all the data is coming from /all");
-});
-
-app.listen(3000, () => {
-  console.log("port running successfully");
-});
+    app.listen(3000, () => console.log("Server running on port 3000"));
+  })
+  .catch((err) => {
+    console.log("Database connection not established:", err.message);
+  });
