@@ -1,6 +1,8 @@
 const express = require("express");
-const connectDB = require("./Utils/Database");
-const User = require("./models/User");
+const connectDB = require("./src/config/Database");
+const User = require("./src/models/User");
+const { validateSignUpData } = require("./src/utils/validation");
+const bcrypt = require("bcrypt");
 const app = express();
 
 app.use(express.json());
@@ -19,17 +21,52 @@ this json will come in the req.body
 */
 
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-
   try {
+    // when the data is come form the body we will send to the validate function
+    validateSignUpData(req);
+
+    // now i have to encrypt the password
+    const { firstName, lastName, email, password } = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+    });
     await user.save();
     res.send("User added successfully to the database");
   } catch (err) {
-    if (err.code === 11000) {
-      res.send("Email already exists. Please use a different email.");
+    // if (err.code === 11000) {
+    //   res.send("Email already exists. Please use a different email.");
+    // }
+
+    res.status(400).json({ error: err.message });
+    // json becouse we have to show the error in the post man
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("Invalid credential");
     }
-    console.log("Invalid request", err);
-    res.status(500).send("Something went wrong");
+
+    const isPasswordvalid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordvalid) {
+      throw new Error("Invalid Cedential");
+    } else {
+      res.send("Login successfull....");
+    }
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
