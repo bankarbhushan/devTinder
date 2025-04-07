@@ -1,25 +1,70 @@
 const mongoose = require("mongoose");
+var validator = require("validator");
 
-const useSchema = mongoose.Schema({
-  firstName: {
-    type: String,
-  },
-  LastName: {
-    type: String,
-  },
-  email: {
-    type: String,
-  },
-  password: {
-    type: String,
-  },
-  age: {
-    type: Number,
-  },
-  gender: {
-    type: String,
-  },
-});
+const userSchema = mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      minLength: 2,
+      maxLength: 50,
+    },
+    lastName: {
+      type: String,
+      minLength: 2,
+      maxLength: 50,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("email is not valid...");
+        }
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      trim: true,
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Password is not valid...");
+        }
+      },
+    },
+    age: {
+      type: Number,
+    },
+    gender: {
+      type: String,
+      validate(value) {
+        if (!["male", "female", "others"].includes(value)) {
+          throw new Error("Enter a valid gender");
+        }
+      },
+    },
+    skills: {
+      type: [String],
+      default: [],
 
-module.exports = mongoose.model("User", useSchema);
-// name of model and schema
+      validate(skills) {
+        if (skills.length > 10) {
+          throw new console.error("you can not add more the 10 skills");
+        }
+      },
+    },
+    about: {
+      type: String,
+      default: "this is an about section by default value",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+module.exports = mongoose.model("User", userSchema);

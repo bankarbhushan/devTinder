@@ -4,37 +4,40 @@ const User = require("./models/User");
 const app = express();
 
 app.use(express.json());
+User.createIndexes();
+
 // is a piece of middleware in Express that allows your server to parse incoming requests with JSON payloads. When clients send data to your server in the form of JSON, this middleware is what enables your server to understand and process that data.
-
 /*
-
 req.body =={
-              firstName: "bhushan",
-              lastName: "bankar",
-              email: "bhushan@gamil.com",
-              password: "123",
-              age: 12,
-            }
-
+          firstName: "bhushan",
+          lastName: "bankar",
+          email: "bhushan@gamil.com",
+          password: "123",
+          age: 12,
+}
 this json will come in the req.body
-
 */
 
 app.post("/signup", async (req, res) => {
   const user = new User(req.body);
-  console.log(user);
 
   try {
     await user.save();
-    res.send("user added successfully in the database");
+    res.send("User added successfully to the database");
   } catch (err) {
-    console.log("Invalid request");
+    if (err.code === 11000) {
+      res.send("Email already exists. Please use a different email.");
+    }
+    console.log("Invalid request", err);
+    res.status(500).send("Something went wrong");
   }
 });
 
 app.get("/user", async (req, res) => {
   // go to postman and put the data in the body  {firstName:"bhushan"}
+
   const userName = req.body.firstName;
+
   try {
     const get_users = await User.find({
       firstName: userName,
@@ -45,7 +48,7 @@ app.get("/user", async (req, res) => {
       res.send(get_users);
     }
   } catch (err) {
-    console.log("something went wrong");
+    console.log("something went wrong" + err);
   }
 });
 
@@ -72,19 +75,33 @@ app.delete("/user", async (req, res) => {
   }
 });
 
-app.patch("/user", async (req, res) => {
+app.patch("/user/:userID", async (req, res) => {
   // put this data in the posrtman {
   //     "userID":"67ef5dca689a9043fb553b3b",
   //     "name":"radha rani"
   // }
-  const userID = req.body.userID;
+
+  const userID = req.params.userID;
   const data = req.body;
   console.log(data);
 
   try {
-    const result = await User.findOneAndUpdate({ userID }, data);
+    const ALLOWED_UPDATE = ["skills", "age", "about", "gender"];
+    const IS_ALLOWED = Object.keys(data).every((key) =>
+      ALLOWED_UPDATE.includes(key)
+    );
+    // we will map throught all the key if include in data it allow other wise iwill go to the if block
+    if (!IS_ALLOWED) {
+      throw new Error("update not allow");
+    }
+    if (data?.skills.length > 10) {
+      throw new Error("you can not add more than 10 skills ..... ");
+    }
+    const result = await User.findOneAndUpdate({ _id: userID }, data, {
+      runValidators: true,
+      new: true,
+    });
     console.log(result);
-
     res.send("user update successfully...");
   } catch (err) {
     console.log(err);
@@ -94,8 +111,7 @@ app.patch("/user", async (req, res) => {
 connectDB()
   .then(() => {
     console.log("Database Connection established successfully");
-
-    app.listen(3000, () => console.log("Server running on port 3000"));
+    app.listen(3002, () => console.log("Server running on port 3002"));
   })
   .catch((err) => {
     console.log("Database connection not established:", err.message);
