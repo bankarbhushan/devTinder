@@ -3,10 +3,17 @@ const connectDB = require("./src/config/Database");
 const User = require("./src/models/User");
 const { validateSignUpData } = require("./src/utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const { JsonWebTokenError } = require("jsonwebtoken");
 const app = express();
-
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./src/middleware/Authentication");
+// this is for the express
 app.use(express.json());
+// this is middlewaare
 User.createIndexes();
+// this is middleware of the token parsing
+app.use(cookieParser());
 
 // is a piece of middleware in Express that allows your server to parse incoming requests with JSON payloads. When clients send data to your server in the form of JSON, this middleware is what enables your server to understand and process that data.
 /*
@@ -54,95 +61,38 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email: email });
+    // getting the data form the databse
+
     if (!user) {
       throw new Error("Invalid credential");
     }
 
-    const isPasswordvalid = await bcrypt.compare(password, user.password);
+    const isPasswordvalid = await user.validatePassword(password);
 
-    if (!isPasswordvalid) {
-      throw new Error("Invalid Cedential");
+    if (isPasswordvalid) {
+      const token = await user.getJWT();
+      // we call the jwt function which is present int user model for the validation
+      res.send("Login successful....");
     } else {
-      res.send("Login successfull....");
+      throw new Error("Invalid Cedential");
     }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-app.get("/user", async (req, res) => {
-  // go to postman and put the data in the body  {firstName:"bhushan"}
-
-  const userName = req.body.firstName;
-
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const get_users = await User.find({
-      firstName: userName,
-    });
-    if (get_users.length === 0) {
-      res.status(404).send("User not Found in the database");
-    } else {
-      res.send(get_users);
-    }
+    const user = req.user;
+    res.send(user);
   } catch (err) {
-    console.log("something went wrong" + err);
+    console.log("Error", err);
   }
 });
 
-app.get("/feed", async (req, res) => {
-  try {
-    const allUser = await User.find({});
-    // get all the data from the databse
-    res.send(allUser);
-  } catch (err) {
-    res.status(404).send("something went wrong");
-  }
-});
-
-app.delete("/user", async (req, res) => {
-  const userID = await req.body.userID;
-
-  try {
-    // console.log("userid", userID);
-
-    await User.findByIdAndDelete(userID);
-    res.send("user deleted successfully...");
-  } catch (err) {
-    console.log("error found ", err);
-  }
-});
-
-app.patch("/user/:userID", async (req, res) => {
-  // put this data in the posrtman {
-  //     "userID":"67ef5dca689a9043fb553b3b",
-  //     "name":"radha rani"
-  // }
-
-  const userID = req.params.userID;
-  const data = req.body;
-  console.log(data);
-
-  try {
-    const ALLOWED_UPDATE = ["skills", "age", "about", "gender"];
-    const IS_ALLOWED = Object.keys(data).every((key) =>
-      ALLOWED_UPDATE.includes(key)
-    );
-    // we will map throught all the key if include in data it allow other wise iwill go to the if block
-    if (!IS_ALLOWED) {
-      throw new Error("update not allow");
-    }
-    if (data?.skills.length > 10) {
-      throw new Error("you can not add more than 10 skills ..... ");
-    }
-    const result = await User.findOneAndUpdate({ _id: userID }, data, {
-      runValidators: true,
-      new: true,
-    });
-    console.log(result);
-    res.send("user update successfully...");
-  } catch (err) {
-    console.log(err);
-  }
+app.post("/sendConnectionRequest", userAuth, (req, res) => {
+  const user = req.user;
+  res.send(user.firstName + " sending the connection request..... ");
 });
 
 connectDB()
