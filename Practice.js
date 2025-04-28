@@ -1,3 +1,6 @@
+// this is middlewaare
+// User.createIndexes();
+
 // // app.get("/", (req, res) => {
 // //   res.setHeader("Content-Type", "text/plain"); // Must set manually
 // //   res.end("hello from server");
@@ -257,3 +260,17 @@
 //     console.log(err);
 //   }
 // });
+
+// ======================================== Middleware  =================================================//
+
+// is a piece of middleware in Express that allows your server to parse incoming requests with JSON payloads. When clients send data to your server in the form of JSON, this middleware is what enables your server to understand and process that data.
+/*
+req.body =={
+          firstName: "bhushan",
+          lastName: "bankar",
+          email: "bhushan@gamil.com",
+          password: "123",
+          age: 12,
+}
+this json will come in the req.body
+*/
