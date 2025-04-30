@@ -43,11 +43,15 @@ const userSchema = mongoose.Schema(
     },
     gender: {
       type: String,
-      validate(value) {
-        if (!["male", "female", "others"].includes(value)) {
-          throw new Error("Enter a valid gender");
-        }
+      enum: {
+        values: ["male", "female", "other"],
+        message: `{value} is not valid gender`,
       },
+      // validate(value) {
+      //   if (!["male", "female", "others"].includes(value)) {
+      //     throw new Error("Enter a valid gender");
+      //   }
+      // },
     },
     skills: {
       type: [String],
@@ -62,6 +66,14 @@ const userSchema = mongoose.Schema(
     about: {
       type: String,
       default: "this is an about section by default value",
+    },
+    photoUrl: {
+      type: String,
+      // validate(url) {
+      //   if (!validator.url(url)) {
+      //     throw new Error("Url is not correct");
+      //   }
+      // },
     },
   },
   {

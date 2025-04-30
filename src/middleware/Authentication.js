@@ -24,7 +24,7 @@ const UserValidation = (req, res, next) => {
 
 const userAuth = async (req, res, next) => {
   try {
-    console.log("Cookies:", req.cookies); // Debug
+    // console.log("Cookies:", req.cookies); // Debug
     const { token } = req.cookies;
 
     if (!token || typeof token !== "string") {

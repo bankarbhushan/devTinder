@@ -11,16 +11,17 @@ authRouter.post("/signup", async (req, res) => {
     validateSignUpData(req);
 
     // now i have to encrypt the password
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, photoUrl } = req.body;
 
     const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
+    // console.log(passwordHash);
 
     const user = new User({
       firstName,
       lastName,
       email,
       password: passwordHash,
+      photoUrl,
     });
     await user.save();
     res.send("User added successfully to the database");
@@ -53,8 +54,8 @@ authRouter.post("/login", async (req, res) => {
       expires: new Date(Date.now() + 86400000), // 1 day
     });
 
-    console.log("Cookies:", req.cookies);
-    console.log("Token:", token);
+    // console.log("Cookies:", req.cookies);
+    // console.log("Token:", token);
 
     res.send("Login successful");
   } catch (err) {

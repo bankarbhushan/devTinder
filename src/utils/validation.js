@@ -11,27 +11,37 @@ const validateSignUpData = (req) => {
     throw new Error("Please enter a strong password");
   }
 };
-const validEditProfileData = (req) => {
+const validateEditProfileData = (req) => {
   const allowedEditFields = [
     "firstName",
     "lastName",
-    "age",
-    "gender",
-    "skills",
-    "about",
     "email",
+    "gender",
+    "age",
+    "about",
+    "skills",
+    "photoUrl",
   ];
 
-  const isValidOperation = Object.keys(req.body).every((field) =>
+  const isEditAllowed = Object.keys(req.body).every((field) =>
     allowedEditFields.includes(field)
   );
 
-  if (!isValidOperation) {
-    throw new Error("Invalid fields in edit profile request");
-  }
+  return isEditAllowed;
+};
+
+const validateForgotPassword = (req) => {
+  const validate = (password) => {
+    if (!validator.isStrongPassword(password)) {
+      throw new Error("Password is not valid...");
+    }
+  };
+
+  validate(req.body.password);
 };
 
 module.exports = {
   validateSignUpData,
-  validEditProfileData,
+  validateEditProfileData,
+  validateForgotPassword,
 };
