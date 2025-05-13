@@ -11,7 +11,7 @@ authRouter.post("/signup", async (req, res) => {
     validateSignUpData(req);
 
     // now i have to encrypt the password
-    const { firstName, lastName, email, password, photoUrl } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     const passwordHash = await bcrypt.hash(password, 10);
     // console.log(passwordHash);
@@ -21,10 +21,19 @@ authRouter.post("/signup", async (req, res) => {
       lastName,
       email,
       password: passwordHash,
-      photoUrl,
     });
-    await user.save();
-    res.send("User added successfully to the database");
+    const savedUser = await user.save();
+
+    const token = await savedUser.getJWT();
+
+    // SET cookie here!
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      expires: new Date(Date.now() + 86400000), // 1 day
+    });
+
+    res.json({ message: "User signup successfully", data: savedUser });
   } catch (err) {
     res.status(400).json({ error: err.message });
     // json becouse we have to show the error in the post man
@@ -42,7 +51,7 @@ authRouter.post("/login", async (req, res) => {
 
     const isPasswordValid = await user.validatePassword(password);
     if (!isPasswordValid) {
-      throw new Error("Invalid credentials");
+      throw new Error("invalid credentials");
     }
 
     const token = await user.getJWT(); // ✅ await added here
@@ -57,9 +66,12 @@ authRouter.post("/login", async (req, res) => {
     // console.log("Cookies:", req.cookies);
     // console.log("Token:", token);
 
-    res.send("Login successful");
+    res.json({
+      message: "Login Successfull...",
+      data: user,
+    });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 });
 

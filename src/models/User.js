@@ -69,6 +69,8 @@ const userSchema = mongoose.Schema(
     },
     photoUrl: {
       type: String,
+      default:
+        "https://www.pngall.com/wp-content/uploads/5/User-Profile-PNG.png",
       // validate(url) {
       //   if (!validator.url(url)) {
       //     throw new Error("Url is not correct");

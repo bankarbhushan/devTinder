@@ -1,8 +1,18 @@
 const express = require("express");
 const connectDB = require("./src/config/Database");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const app = express();
+
+// this will help to get back you the cookies on the frontend
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    // from here we will set the URL of the frontend to get the cookies
+    credentials: true,
+  })
+);
 
 // this is for the express
 app.use(express.json());
