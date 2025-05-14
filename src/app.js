@@ -1,5 +1,5 @@
 const express = require("express");
-const connectDB = require("./src/config/Database");
+const connectDB = require("./config/Database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
@@ -19,10 +19,10 @@ app.use(express.json());
 // this is middleware of the token parsing
 app.use(cookieParser());
 
-const authRoute = require("./src/routes/auth");
-const profileRouter = require("./src/routes/profile");
-const requestRouter = require("./src/routes/request");
-const userRoute = require("./src/routes/user");
+const authRoute = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+const userRoute = require("./routes/user");
 
 app.use("/", authRoute);
 app.use("/", profileRouter);
