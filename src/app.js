@@ -1,10 +1,10 @@
 const express = require("express");
+require("dotenv").config();
 const connectDB = require("./config/Database");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-
+require("./utils/cornjob");
 const app = express();
-
 // this will help to get back you the cookies on the frontend
 app.use(
   cors({
@@ -32,7 +32,9 @@ app.use("/", userRoute);
 connectDB()
   .then(() => {
     console.log("Database Connection established successfully");
-    app.listen(3002, () => console.log("Server running on port 3002"));
+    app.listen(process.env.PORT, () =>
+      console.log("Server running on port 3002")
+    );
   })
   .catch((err) => {
     console.log("Database connection not established:", err.message);
