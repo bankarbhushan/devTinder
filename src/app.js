@@ -8,8 +8,7 @@ const app = express();
 // this will help to get back you the cookies on the frontend
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    // from here we will set the URL of the frontend to get the cookies
+    origin: "http://localhost:5173", // or your frontend's actual URL
     credentials: true,
   })
 );
@@ -23,11 +22,13 @@ const authRoute = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRoute = require("./routes/user");
+const paymentRouter = require("./routes/payment");
 
 app.use("/", authRoute);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRoute);
+app.use("/", paymentRouter);
 
 connectDB()
   .then(() => {

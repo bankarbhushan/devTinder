@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const Adminvalidation = (req, res, next) => {
-  console.log("admin authentication checked");
+  // console.log("admin authentication checked");
   const token = "xyz";
   const isAdminAuthoried = token === "xyz";
   if (isAdminAuthoried) {

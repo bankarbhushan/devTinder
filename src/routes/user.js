@@ -42,7 +42,7 @@ userRoute.get("/user/connection", userAuth, async (req, res) => {
       })
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
-    console.log(connectionRequests);
+    // console.log(connectionRequests);
 
     const data = connectionRequests.map((row) => {
       if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
